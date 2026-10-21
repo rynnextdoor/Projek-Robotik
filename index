@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>SMART ICT LAB</title>
+
+<style>
+:root {
+  --bg: #101827;
+  --panel: #192538;
+  --panel2: #202f45;
+  --text: #f2f6fc;
+  --muted: #9aabc1;
+  --green: #36d399;
+  --red: #fb7185;
+  --blue: #66a8ff;
+  --border: rgba(255,255,255,.09);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at top left, #1c3852 0, transparent 45%),
+    var(--bg);
+  min-height: 100vh;
+}
+main { max-width: 900px; margin: auto; padding: 22px 16px 40px; }
+header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px;
+}
+.logo {
+  width: 52px; height: 52px; display: grid;
+  place-items: center; border-radius: 16px;
+  background: #214c48; font-size: 26px;
+}
+h1 { font-size: 21px; margin: 0 0 5px; letter-spacing: 1px; }
+.subtitle { color: var(--muted); font-size: 13px; }
+.connection {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 7px;
+}
+.dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #8290a4;
+}
+.dot.online { background: var(--green); }
+.card {
+  background: rgba(25,37,56,.94);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 20px; margin-bottom: 16px;
+}
+.card h2 { margin: 0 0 16px; font-size: 16px; }
+.hero {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 15px; flex-wrap: wrap;
+}
+.hero p { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+.big-status { font-size: 28px; font-weight: 700; margin-top: 8px; }
+.badge {
+  padding: 8px 11px; border-radius: 20px;
+  background: var(--panel2); color: var(--muted);
+  font-size: 12px; display: inline-block;
+}
+.badge.good { color: var(--green); background: #153c38; }
+.badge.bad { color: var(--red); background: #482733; }
+button {
+  border: 0; border-radius: 12px; padding: 13px 16px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  color: var(--text); background: var(--panel2);
+}
+button:disabled { opacity: .35; cursor: not-allowed; }
+button.primary { background: var(--green); color: #06271d; }
+button.secondary { background: var(--blue); color: #071d39; }
+button.danger { background: #482733; color: #ffb4c0; }
+button.outline { border: 1px solid var(--border); }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.connect-btn { width: 100%; margin-top: 15px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.status-row { display: flex; align-items: center; gap: 12px; }
+.icon {
+  width: 43px; height: 43px; display: grid; place-items: center;
+  border-radius: 13px; background: var(--panel2); font-size: 21px;
+}
+.status-row .info { flex: 1; }
+.status-row strong { display: block; font-size: 14px; margin-bottom: 5px; }
+.status-row small { color: var(--muted); }
+.message {
+  border-radius: 12px; padding: 12px 14px; font-size: 13px;
+  background: var(--panel2); color: var(--muted);
+  margin-top: 14px; line-height: 1.5; overflow-wrap: anywhere;
+}
+.message.error { color: #ffc0c8; background: #482733; }
+.message.success { color: #a7f3d0; background: #153c38; }
+.footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 20px; }
+@media (max-width: 540px) {
+  .grid { grid-template-columns: 1fr; }
+  .connection { width: 100%; margin-left: 0; }
+  header { flex-wrap: wrap; }
+  .hero { align-items: flex-start; }
+}
+</style>
+</head>
+
+<body>
+<main>
+  <header>
+    <div class="logo">⌁</div>
+    <div>
+      <h1>SMART ICT LAB</h1>
+      <div class="subtitle">Sistem Kawalan Makmal ICT</div>
+    </div>
+    <div class="connection">
+      <span id="dot" class="dot"></span>
+      <span id="connectionText">Belum disambungkan</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="hero">
+      <div>
+        <span class="badge">KAWALAN LAMPU</span>
+        <div class="big-status" id="lampText">Tidak diketahui</div>
+        <p>ESP32 Master → Bluetooth Classic → Receiver</p>
+      </div>
+      <div class="icon" style="width:64px;height:64px;font-size:30px">💡</div>
+    </div>
+
+    <div class="actions">
+      <button id="onBtn" class="primary" disabled>⏻ &nbsp; HIDUPKAN</button>
+      <button id="offBtn" class="danger" disabled>◯ &nbsp; MATIKAN</button>
+    </div>
+
+    <button id="connectBtn" class="secondary connect-btn">
+      Sambung ke ESP32 Master
+    </button>
+
+    <div id="message" class="message">
+      Sambungkan telefon kepada ICT_MASTER_BLE untuk mula.
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>🔐 Kebenaran RFID</h2>
+      <div class="status-row">
+        <div class="icon">▣</div>
+        <div class="info">
+          <strong id="rfidText">Tidak diketahui</strong>
+          <small>Status akses lampu</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🚨 Sistem kecemasan</h2>
+      <div class="status-row">
+        <div class="icon">⚠</div>
+        <div class="info">
+          <strong id="emergencyText">Tidak diketahui</strong>
+          <small>LED amaran dan buzzer</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📡 Bluetooth Receiver</h2>
+      <div class="status-row">
+        <div class="icon">⌁</div>
+        <div class="info">
+          <strong id="classicText">Tidak diketahui</strong>
+          <small>Sambungan Master–Receiver</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔄 Status sistem</h2>
+      <div class="status-row">
+        <div class="icon">✓</div>
+        <div class="info">
+          <strong id="systemText">Menunggu sambungan</strong>
+          <small>Kemas kini daripada ESP32</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    SMART ICT LAB · BLE Dashboard · Akses lampu tertakluk kepada RFID dan keselamatan kecemasan
+  </div>
+</main>
+
+<script>
+const SERVICE_UUID =
+  "12345678-1234-1234-1234-1234567890ab";
+
+const CONTROL_UUID =
+  "12345678-1234-1234-1234-1234567890ac";
+
+let device = null;
+let server = null;
+let characteristic = null;
+
+let status = {
+  lampOn: false,
+  authorized: false,
+  emergency: false,
+  classicConnected: false
+};
+
+const $ = id => document.getElementById(id);
+
+function showMessage(text, type = "") {
+  $("message").textContent = text;
+  $("message").className = "message " + type;
+}
+
+function setConnected(connected) {
+  $("dot").className = connected ? "dot online" : "dot";
+  $("connectionText").textContent =
+    connected ? "BLE bersambung" : "BLE terputus";
+
+  $("connectBtn").textContent =
+    connected ? "Putuskan sambungan" : "Sambung ke ESP32 Master";
+
+  $("onBtn").disabled =
+    !connected  !status.authorized  status.emergency;
+
+  $("offBtn").disabled = !connected;
+}
+
+function renderStatus() {
+  $("lampText").textContent =
+    status.lampOn ? "LAMPU ON" : "LAMPU OFF";
+
+  $("rfidText").textContent =
+    status.authorized ? "DIBENARKAN" : "DIKUNCI";
+
+  $("emergencyText").textContent =
+    status.emergency ? "KECEMASAN AKTIF" : "NORMAL";
+
+  $("classicText").textContent =
+    status.classicConnected ? "BERSAMBUNG" : "TERPUTUS";
+
+  $("systemText").textContent = status.emergency
+    ? "Lampu dikunci untuk kecemasan"
+    : status.authorized
+      ? "Kebenaran RFID aktif"
+      : "Menunggu kad RFID";
+
+  $("emergencyText").style.color =
+    status.emergency ? "#fb7185" : "#36d399";
+
+  setConnected(!!(device && device.gatt && device.gatt.connected));
+}
+
+function handleStatus(event) {
+  try {
+    const value = new TextDecoder().decode(event.target.value);
+    const data = JSON.parse(value);
+
+    status = { ...status, ...data };
+    renderStatus();
+  } catch (err) {
+    showMessage("Data status daripada ESP32 tidak sah.", "error");
+  }
+}
+
+async function connectBLE() {
+  if (device && device.gatt && device.gatt.connected) {
+    device.gatt.disconnect();
+    return;
+  }
+
+  if (!navigator.bluetooth) {
+    showMessage(
+      "Web Bluetooth tidak disokong oleh browser ini. Cuba Chrome pada Android.",
+      "error"
+    );
+    return;
+  }
+  try {
+    showMessage("Mencari ESP32 Master BLE...");
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ name: "ICT_MASTER_BLE" }],
+      optionalServices: [SERVICE_UUID]
+    });
+
+    device.addEventListener("gattserverdisconnected", () => {
+      characteristic = null;
+      server = null;
+      setConnected(false);
+      showMessage("Sambungan BLE terputus.");
+    });
+
+    server = await device.gatt.connect();
+
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    characteristic =
+      await service.getCharacteristic(CONTROL_UUID);
+
+    await characteristic.startNotifications();
+    characteristic.addEventListener(
+      "characteristicvaluechanged", handleStatus
+    );
+
+    setConnected(true);
+    showMessage(
+      "Berjaya bersambung ke " + device.name + ".",
+      "success"
+    );
+
+    await sendCommand("WEB,STATUS");
+  } catch (err) {
+    showMessage("Sambungan gagal: " + err.message, "error");
+    setConnected(false);
+  }
+}
+
+async function sendCommand(command) {
+  if (!characteristic ||
+      !device ||
+      !device.gatt ||
+      !device.gatt.connected) {
+    showMessage("Sambungkan BLE terlebih dahulu.", "error");
+    return;
+  }
+
+  if (command === "WEB,LAMP_ON" &&
+      (!status.authorized || status.emergency)) {
+    showMessage(
+      "Arahan ON ditolak: perlukan RFID sah dan tiada kecemasan.",
+      "error"
+    );
+    return;
+  }
+
+  try {
+    const bytes = new TextEncoder().encode(command);
+    await characteristic.writeValueWithResponse(bytes);
+
+    showMessage("Arahan dihantar: " + command, "success");
+
+    if (command === "WEB,STATUS") {
+      showMessage("Meminta status terkini daripada ESP32.");
+    }
+  } catch (err) {
+    showMessage("Arahan gagal dihantar: " + err.message, "error");
+  }
+}
+
+$("connectBtn").addEventListener("click", connectBLE);
+$("onBtn").addEventListener("click", () => sendCommand("WEB,LAMP_ON"));
+$("offBtn").addEventListener("click", () => sendCommand("WEB,LAMP_OFF"));
+
+renderStatus();
+</script>
+</body>
+</html>
